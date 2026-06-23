@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Lista de regalos · Cecilia & Eduardo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Italiana&family=EB+Garamond:wght@400;500;600&display=swap');
+
+:root{
+  --cream:#eef3f7;
+  --cream-deep:#e2ebf3;
+  --ink:#162a3d;
+  --sage:#3a6ea5;
+  --sage-deep:#1f4a73;
+  --gold:#4f86b8;
+  --line:rgba(22,42,61,0.18);
+  --paper-shadow: 0 18px 50px rgba(22,42,61,0.12);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--cream);
+  color:var(--ink);
+  font-family:'EB Garamond', serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+.app{
+  max-width:480px;
+  margin:0 auto;
+  position:relative;
+  background:var(--cream);
+  min-height:100vh;
+}
+
+.eyebrow{
+  font-family:'EB Garamond',serif;
+  font-size:12px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:var(--sage-deep);
+  text-align:center;
+}
+
+.back-link{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:24px 28px 0;
+  font-family:'EB Garamond', serif;
+  font-size:13px;
+  letter-spacing:0.5px;
+  color:var(--sage-deep);
+  text-decoration:none;
+}
+.back-link svg{ width:16px; height:16px; }
+
+header.page-head{
+  text-align:center;
+  padding:28px 28px 8px;
+}
+.section-title{
+  font-family:'Italiana', serif;
+  font-size:30px;
+  text-align:center;
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+.page-head p{
+  font-size:15.5px;
+  line-height:1.65;
+  color:#33495d;
+  max-width:330px;
+  margin:14px auto 0;
+}
+
+section.giftlist{
+  padding:24px 32px 64px;
+}
+
+.giftlist-grid{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-width:380px;
+  margin:0 auto;
+}
+.giftlist-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:rgba(255,255,255,0.55);
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:13px 16px;
+  text-align:left;
+  transition:opacity .35s ease, transform .35s ease;
+}
+.giftlist-item .item-name{
+  font-size:15.5px;
+  color:var(--ink);
+}
+.giftlist-item .reserve-btn{
+  flex-shrink:0;
+  font-family:'EB Garamond', serif;
+  font-size:11px;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  color:var(--cream);
+  background:var(--sage-deep);
+  border:none;
+  border-radius:20px;
+  padding:8px 14px;
+  cursor:pointer;
+}
+.giftlist-item .reserve-btn:active{ opacity:0.8; }
+.giftlist-empty{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:16px;
+  color:var(--sage-deep);
+  padding:20px 0;
+  text-align:center;
+}
+.giftlist-loading{
+  font-size:14px;
+  opacity:0.6;
+  padding:20px 0;
+  text-align:center;
+}
+.giftlist-note{
+  margin-top:22px;
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:14px;
+  color:var(--sage-deep);
+  opacity:0.9;
+  text-align:center;
+}
+
+footer.page-foot{
+  background:var(--ink);
+  color:var(--cream);
+  text-align:center;
+  padding:38px 32px 34px;
+}
+footer.page-foot .names-small{
+  font-family:'Italiana', serif;
+  font-size:22px;
+  letter-spacing:1px;
+}
+footer.page-foot .amp{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  color:var(--gold);
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <a class="back-link" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Volver a la invitación
+  </a>
+
+  <header class="page-head">
+    <div class="eyebrow">Cecilia &amp; Eduardo</div>
+    <div class="section-title">Lista de regalos</div>
+    <p>El mayor regalo para nosotros es compartir esta alegría con vos, pero si querés realizar algún otro obsequio, podés elegir una opción de esta lista.</p>
+  </header>
+
+  <section class="giftlist">
+    <div class="giftlist-grid" id="giftListGrid">
+      <div class="giftlist-loading" id="giftListLoading">Cargando lista...</div>
+    </div>
+    <div class="giftlist-note">Al confirmar, se abre WhatsApp para avisarnos y reservarlo</div>
+  </section>
+
+  <footer class="page-foot">
+    <div class="names-small">Cecilia <span class="amp">&amp;</span> Eduardo</div>
+  </footer>
+
+</div>
+
+<script>
+// ======================================================================
+// LISTA DE REGALOS YA ENTREGADOS / CONFIRMADOS
+// ----------------------------------------------------------------------
+// Esta página lee el archivo "regalos.txt" (que tiene que estar subido
+// en la MISMA carpeta de GitHub que este archivo).
+// Para marcar un regalo como "ya tomado":
+// 1. Entrá a "regalos.txt" desde GitHub (ícono de lápiz / "Edit").
+// 2. Escribí el nombre EXACTO del regalo en una línea nueva, tal como
+//    aparece en la lista más abajo (podés copiar y pegar el nombre).
+// 3. Guardá los cambios ("Commit changes").
+// Para "destomarlo" de nuevo, simplemente borrá esa línea.
+// Este es el MISMO archivo regalos.txt que usa index.html, así que
+// editarlo una vez actualiza ambas páginas.
+// ======================================================================
+const REGALOS_TXT_URL = 'regalos.txt';
+
+const giftItems = [
+  { name:'Batidora' },
+  { name:'Multiprocesadora' },
+  { name:'Licuadora' },
+  { name:'Minipimer / picahielo' },
+  { name:'Máquina de coser' },
+  { name:'Aspiradora' },
+  { name:'Ropa de cama (acolchado, frazada, blanco)' },
+  { name:'Ropa de blanco (toalla, toallones)' },
+  { name:'Juego de cortinas, barrales' },
+  { name:'Vajilla completa (platos llanos, hondos, postre, fuentes)' },
+  { name:'Vajilla (set de cuchillos)' },
+  { name:'Vajilla (tabla para cortar)' },
+  { name:'Utensilios de cocina' },
+  { name:'Mesa y sillas' },
+  { name:'Juego de té' },
+  { name:'Bandejas para horno' },
+  { name:'Olla a presión' },
+  { name:'Mueble: escritorio' },
+  { name:'Mesa de luz' },
+  { name:'Veladores / lámparas' },
+  { name:'Plancha - planchador' },
+  { name:'Microondas' },
+  { name:'Horno eléctrico' },
+  { name:'Juego de sillones' },
+  { name:'Filtro de agua PSA' },
+  { name:'Tostadora eléctrica' },
+  { name:'Yogurtera' },
+  { name:'Pava eléctrica' },
+  { name:'Juego de sartenes' },
+  { name:'Mantelería' },
+  { name:'Set de Bowls' },
+  { name:'Tender de ropa' },
+];
+
+function normalize(str){
+  return str.trim().toLowerCase();
+}
+
+(function(){
+  const grid = document.getElementById('giftListGrid');
+  const loading = document.getElementById('giftListLoading');
+  if (!grid) return;
+
+  function buildWhatsAppLink(itemName){
+    const msg = `¡Hola! Quiero regalarles: ${itemName}. ¡Felicidades Cecilia y Eduardo!`;
+    return 'https://wa.me/?text=' + encodeURIComponent(msg);
+  }
+
+  function render(takenNames){
+    function isTaken(itemName){
+      const n = normalize(itemName);
+      return takenNames.some(taken => normalize(taken) === n);
+    }
+
+    loading.remove();
+    const available = giftItems.filter(it => !isTaken(it.name));
+
+    if (available.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'giftlist-empty';
+      empty.textContent = '¡Ya no quedan regalos disponibles en la lista, gracias por tanto cariño!';
+      grid.appendChild(empty);
+      return;
+    }
+
+    available.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'giftlist-item';
+      row.id = 'gift-' + idx;
+
+      row.innerHTML = `
+        <span class="item-name">${item.name}</span>
+        <button class="reserve-btn" type="button">Lo elijo</button>
+      `;
+
+      const btn = row.querySelector('.reserve-btn');
+      btn.addEventListener('click', function(){
+        const sure = confirm(`¿Confirmás que querés regalar "${item.name}"? Se abrirá WhatsApp para avisarles a Cecilia y Eduardo.`);
+        if (!sure) return;
+        window.open(buildWhatsAppLink(item.name), '_blank');
+      });
+
+      grid.appendChild(row);
+    });
+  }
+
+  fetch(REGALOS_TXT_URL, { cache: 'no-store' })
+    .then(resp => {
+      if (!resp.ok) throw new Error('No se pudo leer regalos.txt');
+      return resp.text();
+    })
+    .then(text => {
+      const takenNames = text
+        .split('\n')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      render(takenNames);
+    })
+    .catch(() => {
+      render([]);
+    });
+})();
+</script>
+
+</body>
+</html>
